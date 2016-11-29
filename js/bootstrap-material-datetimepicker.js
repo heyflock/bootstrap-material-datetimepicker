@@ -9,6 +9,7 @@
 	{
 		this.currentView = 0;
 
+    this.invalidDates = {};
 		this.minDate;
 		this.maxDate;
 
@@ -17,7 +18,7 @@
 		this.element = element;
 		this.$element = $(element);
 
-		this.params = { date : true, time : true, format : 'YYYY-MM-DD', minDate : null, maxDate : null, currentDate : null, lang : 'en', weekStart : 0, shortTime : false, 'cancelText' : 'Cancel', 'okText' : 'OK' };
+		this.params = { date : true, time : true, format : 'YYYY-MM-DD', invalidDates: [], minDate : null, maxDate : null, currentDate : null, lang : 'en', weekStart : 0, shortTime : false, 'cancelText' : 'Cancel', 'okText' : 'OK' };
 		this.params = $.fn.extend(this.params, options);
 
 		this.name = "dtp_" + this.setName();
@@ -80,6 +81,14 @@
 		},
 		initDates: function()
 		{
+
+      if (this.params.invalidDates) {
+        this.invalidDates = {};
+        for (var i = 0; i < this.params.invalidDates.length; i++) {
+          this.invalidDates[this.params.invalidDates[i]] = true;
+        }
+      }
+
 			if(this.$element.val().length > 0)
 			{
 				if(typeof(this.params.format) !== 'undefined' && this.params.format !== null)
@@ -536,6 +545,9 @@
 
 			return _return;
 		},
+    isInvalidDate: function(date) {
+      return this.invalidDates[date.format('YYYY-MM-DD')];
+    },
 		isBeforeMaxDate: function(date, checkTime, checkMinute)
 		{
 			var _return = true;
@@ -676,7 +688,8 @@
 				_template += '<td data-date="' + moment(calendar.days[i]).locale(this.params.lang).format("D") + '">';
 				if(calendar.days[i] != 0)
 				{
-					if(this.isBeforeMaxDate(moment(calendar.days[i]), false, false) === false || this.isAfterMinDate(moment(calendar.days[i]), false, false) === false)
+					if(this.isInvalidDate(moment(calendar.days[i]))
+              || this.isBeforeMaxDate(moment(calendar.days[i]), false, false) === false || this.isAfterMinDate(moment(calendar.days[i]), false, false) === false)
 					{
 						_template += '<span class="dtp-select-day">' + moment(calendar.days[i]).locale(this.params.lang).format("DD") + '</span>';
 					}
@@ -1023,6 +1036,10 @@
 			this.params.minDate = date;
 			this.initDates();
 		},
+    setInvalidDates: function(invalidDates) {
+			this.params.invalidDates = invalidDates;
+			this.initDates();
+    },
 		setMaxDate: function(date)
 		{
 			this.params.maxDate = date;
