@@ -83,10 +83,7 @@
 		{
 
       if (this.params.invalidDates) {
-        this.invalidDates = {};
-        for (var i = 0; i < this.params.invalidDates.length; i++) {
-          this.invalidDates[this.params.invalidDates[i]] = true;
-        }
+        //this.setInvalidDates(this.params.invalidDates);
       }
 
 			if(this.$element.val().length > 0)
@@ -315,7 +312,9 @@
 				this.$dtpElement.find('a.dtp-select-day').on('click', this._onSelectDate.bind(this));
 
 				this.toggleButtons(_date);
-			}
+			} else {
+
+      }
 
 			this._centerBox();
 			this.showDate(_date);
@@ -709,7 +708,6 @@
 				}
 			}
 			_template += '</tr></tbody></table>';
-
 			return _template;
 		},
 		setName: function()
@@ -945,11 +943,13 @@
 		_onMonthBeforeClick: function()
 		{
 			this.currentDate.subtract(1, 'months');
+			this.$element.trigger('calendarPaged', this.currentDate);
 			this.initDate(this.currentDate);
 		},
 		_onMonthAfterClick: function()
 		{
 			this.currentDate.add(1, 'months');
+			this.$element.trigger('calendarPaged', this.currentDate);
 			this.initDate(this.currentDate);
 		},
 		_onYearBeforeClick: function()
@@ -1037,8 +1037,11 @@
 			this.initDates();
 		},
     setInvalidDates: function(invalidDates) {
-			this.params.invalidDates = invalidDates;
-			this.initDates();
+      this.invalidDates = {};
+      for (var i = 0; i < invalidDates.length; i++) {
+        this.invalidDates[invalidDates[i]] = true;
+      }
+      this.initDate(this.currentDate);
     },
 		setMaxDate: function(date)
 		{
